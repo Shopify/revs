@@ -1,4 +1,4 @@
-module github.com/campbel/github-cr-helper
+module github.com/campbel/revs
 
 go 1.18
 
