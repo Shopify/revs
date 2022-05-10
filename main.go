@@ -67,7 +67,8 @@ func initialModel(notifications []*github.Notification) model {
 	keys := newListKeyMap()
 
 	list := list.New(items, list.NewDefaultDelegate(), 0, 0)
-	list.Title = "Github Notifications"
+	list.Title = "Github Reviews"
+	list.StatusMessageLifetime = 5
 	list.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			keys.open,
@@ -78,6 +79,7 @@ func initialModel(notifications []*github.Notification) model {
 		return []key.Binding{
 			keys.open,
 			keys.done,
+			keys.unsubscribe,
 		}
 	}
 	return model{

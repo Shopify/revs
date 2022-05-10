@@ -22,12 +22,12 @@ func newListKeyMap() *listKeyMap {
 			key.WithHelp("o/enter", "open"),
 		),
 		done: key.NewBinding(
-			key.WithKeys("e", "shift+i"),
-			key.WithHelp("e", "mark as read"),
+			key.WithKeys("e", "I"),
+			key.WithHelp("e/I", "mark as read"),
 		),
 		unsubscribe: key.NewBinding(
-			key.WithKeys("shift+u"),
-			key.WithHelp("shift+u", "unsubscribe"),
+			key.WithKeys("U"),
+			key.WithHelp("U", "unsubscribe"),
 		),
 	}
 }
@@ -48,7 +48,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		case key.Matches(msg, m.keys.done):
 			item := m.list.SelectedItem().(item)
+			m.list.ToggleSpinner()
 			_, err := client.Activity.MarkThreadRead(context.Background(), *item.notification.ID)
+			m.list.ToggleSpinner()
 			if err != nil {
 				statusCmd := m.list.NewStatusMessage(errorMessageStyle("Error while marking " + *item.notification.Subject.Title + " as read"))
 				return m, statusCmd
@@ -58,13 +60,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, statusCmd
 		case key.Matches(msg, m.keys.unsubscribe):
 			item := m.list.SelectedItem().(item)
+			m.list.ToggleSpinner()
 			_, err := client.Activity.DeleteThreadSubscription(context.Background(), *item.notification.ID)
+			m.list.ToggleSpinner()
 			if err != nil {
 				statusCmd := m.list.NewStatusMessage(errorMessageStyle("Error while unsubscribing from " + *item.notification.Subject.Title + "."))
 				return m, statusCmd
 			}
 			statusCmd := m.list.NewStatusMessage(statusMessageStyle("Unsubscribed from " + *item.notification.Subject.Title + "."))
 			m.list.RemoveItem(m.list.Index())
+
 			return m, statusCmd
 
 		case msg.String() == "ctrl+c":
