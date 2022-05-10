@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
+	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -13,9 +13,10 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/google/go-github/v44/github"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/exp/slices"
 	"golang.org/x/oauth2"
+
+	"github.com/campbel/revs/config"
 )
 
 const (
@@ -100,11 +101,19 @@ var client *github.Client
 
 func main() {
 
+	token, err := config.GetToken()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if token == "" {
+		log.Fatal("error: invalid token")
+	}
+
 	ctx := context.Background()
 
 	// Authenticate with static token
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")},
+		&oauth2.Token{AccessToken: token},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
@@ -114,7 +123,7 @@ func main() {
 	// list all notifications
 	notificationList, _, err := client.Activity.ListNotifications(ctx, nil)
 	if err != nil {
-		logrus.Fatal(err)
+		log.Fatal(err)
 	}
 
 	// filter to only unread pr notifications
@@ -134,8 +143,7 @@ func main() {
 
 	p := tea.NewProgram(initialModel(notifications), tea.WithAltScreen())
 	if err := p.Start(); err != nil {
-		fmt.Printf("Oh no an error: %v", err)
-		os.Exit(1)
+		log.Fatal("error:", err)
 	}
 }
 
