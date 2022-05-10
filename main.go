@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -31,10 +32,16 @@ var (
 	ReasonPriority = []string{ReasonAssigned, ReasonAuthor, ReasonReviewRequested, ReasonTeamMention, ReasonMention, ReasonComment}
 )
 
-var docStyle = lipgloss.NewStyle().Margin(1, 2)
+var (
+	docStyle           = lipgloss.NewStyle().Margin(1, 2)
+	statusMessageStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.AdaptiveColor{Light: "#04B575", Dark: "#04B575"}).
+				Render
+)
 
 type model struct {
 	list list.Model
+	keys *listKeyMap
 }
 
 type item struct {
@@ -54,32 +61,30 @@ func initialModel(notifications []*github.Notification) model {
 		items[i] = item{notification}
 	}
 
+	keys := newListKeyMap()
+
 	list := list.New(items, list.NewDefaultDelegate(), 0, 0)
 	list.Title = "Github Notifications"
+	list.AdditionalShortHelpKeys = func() []key.Binding {
+		return []key.Binding{
+			keys.open,
+			keys.done,
+		}
+	}
+	list.AdditionalFullHelpKeys = func() []key.Binding {
+		return []key.Binding{
+			keys.open,
+			keys.done,
+		}
+	}
 	return model{
 		list: list,
+		keys: keys,
 	}
 }
 
 func (m model) Init() tea.Cmd {
-	// Just return `nil`, which means "no I/O right now, please."
-	return nil
-}
-
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		if msg.String() == "ctrl+c" {
-			return m, tea.Quit
-		}
-	case tea.WindowSizeMsg:
-		h, v := docStyle.GetFrameSize()
-		m.list.SetSize(msg.Width-h, msg.Height-v)
-	}
-
-	var cmd tea.Cmd
-	m.list, cmd = m.list.Update(msg)
-	return m, cmd
+	return tea.EnterAltScreen
 }
 
 func (m model) View() string {
@@ -127,29 +132,6 @@ func main() {
 		fmt.Printf("Oh no an error: %v", err)
 		os.Exit(1)
 	}
-
-	// for _, notification := range notifications {
-
-	// 	id := getPullRequestID(notification)
-	// 	merged, _, err := client.PullRequests.IsMerged(ctx, *notification.Repository.Owner.Login, *notification.Repository.Name, id)
-	// 	if err != nil {
-	// 		continue
-	// 	}
-
-	// 	if merged {
-	// 		_, _ = client.Activity.MarkThreadRead(ctx, *notification.ID)
-	// 		continue
-	// 	}
-
-	// 	prURL := getPullRequestURL(notification)
-	// 	fmt.Println(notification.GetSubject().GetTitle())
-	// 	fmt.Println("Opening", prURL)
-	// 	browser.OpenURL(prURL)
-	// 	fmt.Println("Press enter to continue...")
-	// 	bufio.NewReader(os.Stdin).ReadBytes('\n')
-
-	// 	_, _ = client.Activity.MarkThreadRead(ctx, *notification.ID)
-	// }
 }
 
 func getPullRequestURL(notification *github.Notification) string {
