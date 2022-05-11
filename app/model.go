@@ -19,7 +19,7 @@ type Model struct {
 	client *github.Client
 }
 
-func NewModel(ctx context.Context, client *github.Client) Model {
+func NewModel(ctx context.Context, client *github.Client) *Model {
 
 	notifications, err := ghutil.GetUnreadPullRequests(ctx, client)
 	if err != nil {
@@ -49,21 +49,22 @@ func NewModel(ctx context.Context, client *github.Client) Model {
 			keys.unsubscribe,
 		}
 	}
-	return Model{
-		list: list,
-		keys: keys,
+	return &Model{
+		list:   list,
+		keys:   keys,
+		client: client,
 	}
 }
 
-func (m Model) Init() tea.Cmd {
+func (m *Model) Init() tea.Cmd {
 	return tea.EnterAltScreen
 }
 
-func (m Model) View() string {
+func (m *Model) View() string {
 	return docStyle.Render(m.list.View())
 }
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
