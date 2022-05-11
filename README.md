@@ -14,5 +14,5 @@ A command line app for accessing and responding to review requests on GitHub.
 ## Install
 
 ```sh
-go install github.com/campbel/revs@latest
+go install github.com/campbel/revs@main
 ```
