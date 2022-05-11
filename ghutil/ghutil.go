@@ -74,7 +74,7 @@ func GetUnreadPullRequests(ctx context.Context, client *github.Client) ([]*Unrea
 		go func(notification *github.Notification) {
 			defer wg.Done()
 			pr, _, _ := client.PullRequests.Get(ctx, *notification.Repository.Owner.Login, *notification.Repository.Name, GetPullRequestID(notification))
-			if *pr.Merged {
+			if *pr.State != "open" {
 				return
 			}
 			mu.Lock()
