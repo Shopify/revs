@@ -1,4 +1,5 @@
 # Revs
+
 A command line app for accessing and responding to review requests on GitHub.
 
 ![Revs sample image](img/sample.gif)
