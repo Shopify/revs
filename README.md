@@ -9,3 +9,9 @@ A command line app for accessing and responding to review requests on GitHub.
 * Open pull request
 * Mark as read
 * Unsubscribe
+
+## Install
+
+```sh
+go install github.com/campbel/revs@latest
+```
