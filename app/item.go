@@ -17,10 +17,17 @@ type item struct {
 func (i *item) Title() string { return *i.notification.Subject.Title }
 func (i *item) Description() string {
 	if i.pr != nil {
-		return fmt.Sprintf("%s • %s", *i.notification.Repository.FullName, *i.pr.User.Login)
+		return fmt.Sprintf("%s • %s",
+			*i.notification.Repository.FullName,
+			*i.pr.User.Login,
+		)
 	}
 	return fmt.Sprintf("%s", *i.notification.Repository.FullName)
 }
 func (i *item) FilterValue() string {
-	return *i.notification.Subject.Title + " " + *i.notification.Repository.FullName
+	return fmt.Sprint(
+		*i.notification.Subject.Title,
+		*i.notification.Repository.FullName,
+		*i.pr.User.Login,
+	)
 }
