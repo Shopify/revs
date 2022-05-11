@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/exp/slices"
@@ -37,7 +38,13 @@ var (
 	ReasonPriority = []string{ReasonAssigned, ReasonAuthor, ReasonReviewRequested, ReasonTeamMention, ReasonMention, ReasonComment}
 )
 
-func GetUnreadPullRequests(ctx context.Context, client *github.Client) ([]*github.Notification, error) {
+type UnreadPullRequest struct {
+	Notification *github.Notification
+	PR           *github.PullRequest
+}
+
+func GetUnreadPullRequests(ctx context.Context, client *github.Client) ([]*UnreadPullRequest, error) {
+
 	// list all notifications
 	notificationList, _, err := client.Activity.ListNotifications(ctx, nil)
 	if err != nil {
@@ -59,7 +66,25 @@ func GetUnreadPullRequests(ctx context.Context, client *github.Client) ([]*githu
 		return slices.Index(ReasonPriority, *notifications[i].Reason) > slices.Index(ReasonPriority, *notifications[j].Reason)
 	})
 
-	return notifications, nil
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	var unreadPullRequests []*UnreadPullRequest
+	for _, notification := range notifications {
+		wg.Add(1)
+		go func(notification *github.Notification) {
+			defer wg.Done()
+			pr, _, _ := client.PullRequests.Get(ctx, *notification.Repository.Owner.Login, *notification.Repository.Name, GetPullRequestID(notification))
+			if *pr.Merged {
+				return
+			}
+			mu.Lock()
+			unreadPullRequests = append(unreadPullRequests, &UnreadPullRequest{Notification: notification, PR: pr})
+			mu.Unlock()
+		}(notification)
+	}
+	wg.Wait()
+
+	return unreadPullRequests, nil
 }
 
 func GetPullRequestURL(notification *github.Notification) string {

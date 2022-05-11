@@ -10,6 +10,7 @@ require (
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
 	golang.org/x/exp v0.0.0-20220428152302-39d4317da171
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
+	golang.org/x/time v0.0.0-20220411224347-583f2d630306
 )
 
 require (

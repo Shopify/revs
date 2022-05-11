@@ -21,14 +21,15 @@ type Model struct {
 
 func NewModel(ctx context.Context, client *github.Client) *Model {
 
-	notifications, err := ghutil.GetUnreadPullRequests(ctx, client)
+	uprs, err := ghutil.GetUnreadPullRequests(ctx, client)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	items := make([]list.Item, len(notifications))
-	for i, notification := range notifications {
-		items[i] = item{notification}
+	items := make([]list.Item, len(uprs))
+	for i, upr := range uprs {
+		item := &item{notification: upr.Notification, pr: upr.PR}
+		items[i] = item
 	}
 
 	keys := newListKeyMap()
@@ -74,12 +75,12 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		switch {
 		case key.Matches(msg, m.keys.open):
-			item := m.list.SelectedItem().(item)
+			item := m.list.SelectedItem().(*item)
 			url := ghutil.GetPullRequestURL(item.notification)
 			browser.OpenURL(url)
 			return m, nil
 		case key.Matches(msg, m.keys.done):
-			item := m.list.SelectedItem().(item)
+			item := m.list.SelectedItem().(*item)
 			m.list.ToggleSpinner()
 			_, err := m.client.Activity.MarkThreadRead(context.Background(), *item.notification.ID)
 			m.list.ToggleSpinner()
@@ -91,7 +92,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.list.RemoveItem(m.list.Index())
 			return m, statusCmd
 		case key.Matches(msg, m.keys.unsubscribe):
-			item := m.list.SelectedItem().(item)
+			item := m.list.SelectedItem().(*item)
 			m.list.ToggleSpinner()
 			_, err := m.client.Activity.DeleteThreadSubscription(context.Background(), *item.notification.ID)
 			m.list.ToggleSpinner()

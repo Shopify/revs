@@ -1,13 +1,26 @@
 package app
 
-import "github.com/google/go-github/github"
+import (
+	"fmt"
+
+	"github.com/google/go-github/github"
+	"golang.org/x/time/rate"
+)
+
+var limiter = rate.NewLimiter(rate.Limit(1), 1)
 
 type item struct {
 	notification *github.Notification
+	pr           *github.PullRequest
 }
 
-func (i item) Title() string       { return *i.notification.Subject.Title }
-func (i item) Description() string { return *i.notification.Repository.FullName }
-func (i item) FilterValue() string {
+func (i *item) Title() string { return *i.notification.Subject.Title }
+func (i *item) Description() string {
+	if i.pr != nil {
+		return fmt.Sprintf("%s • %s", *i.notification.Repository.FullName, *i.pr.User.Login)
+	}
+	return fmt.Sprintf("%s", *i.notification.Repository.FullName)
+}
+func (i *item) FilterValue() string {
 	return *i.notification.Subject.Title + " " + *i.notification.Repository.FullName
 }
