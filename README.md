@@ -16,3 +16,5 @@ A command line app for accessing and responding to review requests on GitHub.
 ```sh
 go install github.com/campbel/revs@main
 ```
+
+This will install to `$GOBIN`, `$GOPATH/bin` or `~/go/bin`. Make sure whichever is in your path.
