@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"log"
+	"sort"
 	"time"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -15,9 +16,10 @@ import (
 )
 
 type Model struct {
-	list   list.Model
-	keys   *listKeyMap
-	client *github.Client
+	list         list.Model
+	keys         *listKeyMap
+	client       *github.Client
+	sortAsceding bool
 }
 
 func NewModel(ctx context.Context, client *github.Client) *Model {
@@ -49,6 +51,10 @@ func NewModel(ctx context.Context, client *github.Client) *Model {
 			keys.open,
 			keys.done,
 			keys.unsubscribe,
+			keys.sortAuthor,
+			keys.sortCreated,
+			keys.sortRepo,
+			keys.sortTitle,
 		}
 	}
 	return &Model{
@@ -105,7 +111,38 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.list.RemoveItem(m.list.Index())
 
 			return m, statusCmd
-
+		case key.Matches(msg, m.keys.sortTitle):
+			m.sortAsceding = !m.sortAsceding
+			m.Sort(func(a *item, b *item) bool {
+				if m.sortAsceding {
+					return *a.notification.Subject.Title > *b.notification.Subject.Title
+				}
+				return *a.notification.Subject.Title < *b.notification.Subject.Title
+			})
+		case key.Matches(msg, m.keys.sortAuthor):
+			m.sortAsceding = !m.sortAsceding
+			m.Sort(func(a *item, b *item) bool {
+				if m.sortAsceding {
+					return *a.pr.User.Login > *b.pr.User.Login
+				}
+				return *a.pr.User.Login < *b.pr.User.Login
+			})
+		case key.Matches(msg, m.keys.sortCreated):
+			m.sortAsceding = !m.sortAsceding
+			m.Sort(func(a *item, b *item) bool {
+				if m.sortAsceding {
+					return a.pr.CreatedAt.UnixNano() > b.pr.CreatedAt.UnixNano()
+				}
+				return a.pr.CreatedAt.UnixNano() < b.pr.CreatedAt.UnixNano()
+			})
+		case key.Matches(msg, m.keys.sortRepo):
+			m.sortAsceding = !m.sortAsceding
+			m.Sort(func(a *item, b *item) bool {
+				if m.sortAsceding {
+					return *a.notification.Repository.FullName > *b.notification.Repository.FullName
+				}
+				return *a.notification.Repository.FullName < *b.notification.Repository.FullName
+			})
 		case msg.String() == "ctrl+c":
 			return m, tea.Quit
 		}
@@ -119,4 +156,13 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
+}
+
+func (m *Model) Sort(compare func(a, b *item) bool) {
+	items := m.list.Items()
+	sort.Slice(items, func(i, j int) bool {
+		a := items[i].(*item)
+		b := items[j].(*item)
+		return compare(a, b)
+	})
 }

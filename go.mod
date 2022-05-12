@@ -6,6 +6,7 @@ require (
 	github.com/charmbracelet/bubbles v0.10.3
 	github.com/charmbracelet/bubbletea v0.20.0
 	github.com/charmbracelet/lipgloss v0.5.0
+	github.com/dustin/go-humanize v1.0.0
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
 	golang.org/x/exp v0.0.0-20220428152302-39d4317da171

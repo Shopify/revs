@@ -59,13 +59,6 @@ func GetUnreadPullRequests(ctx context.Context, client *github.Client) ([]*Unrea
 		}
 	}
 
-	sort.Slice(notifications, func(i, j int) bool {
-		if *notifications[i].Repository.FullName != *notifications[j].Repository.FullName {
-			return *notifications[i].Repository.FullName < *notifications[j].Repository.FullName
-		}
-		return slices.Index(ReasonPriority, *notifications[i].Reason) > slices.Index(ReasonPriority, *notifications[j].Reason)
-	})
-
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 	var unreadPullRequests []*UnreadPullRequest
@@ -83,6 +76,16 @@ func GetUnreadPullRequests(ctx context.Context, client *github.Client) ([]*Unrea
 		}(notification)
 	}
 	wg.Wait()
+
+	sort.Slice(unreadPullRequests, func(i, j int) bool {
+		if *unreadPullRequests[i].PR.CreatedAt != *unreadPullRequests[j].PR.CreatedAt {
+			return unreadPullRequests[i].PR.CreatedAt.UnixNano() < unreadPullRequests[j].PR.CreatedAt.UnixNano()
+		}
+		if *unreadPullRequests[i].Notification.Repository.FullName != *unreadPullRequests[j].Notification.Repository.FullName {
+			return *unreadPullRequests[i].Notification.Repository.FullName < *unreadPullRequests[j].Notification.Repository.FullName
+		}
+		return slices.Index(ReasonPriority, *unreadPullRequests[i].Notification.Reason) > slices.Index(ReasonPriority, *unreadPullRequests[j].Notification.Reason)
+	})
 
 	return unreadPullRequests, nil
 }
