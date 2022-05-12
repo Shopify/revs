@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -36,7 +37,7 @@ func NewModel(ctx context.Context, client *github.Client) *Model {
 
 	list := list.New(items, list.NewDefaultDelegate(), 0, 0)
 	list.Title = "Github Reviews"
-	list.StatusMessageLifetime = 5
+	list.StatusMessageLifetime = time.Second * 10
 	list.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			keys.open,
