@@ -29,6 +29,9 @@ func GetToken() (string, error) {
 	teaModelOut, _ := p.StartReturningModel()
 	modelOut := teaModelOut.(model)
 	token := modelOut.textInput.Value()
+	if token == "" {
+		return "", fmt.Errorf("no token provided")
+	}
 
 	if err := os.MkdirAll(revsPath, 0700); err != nil {
 		return "", err
