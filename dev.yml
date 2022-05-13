@@ -5,6 +5,6 @@ up:
       version: 1.18.2
 
 commands:
-  run-built: bin/revs
+  run: bin/revs
   build: go build -o bin/revs .
-  spin-init: scripts/spin_init
+
