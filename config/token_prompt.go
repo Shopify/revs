@@ -3,24 +3,40 @@ package config
 import (
 	"fmt"
 
+	"github.com/Shopify/revs/bubble/text"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+const (
+	promptMessage = `
+Add a Github Personal Access Token (PAT)
+https://github.com/settings/tokens/new?description=revs-cli-token&scopes=repo,notifications
+
+This is used to access your notifications and information about pull requests you've been asked to review.
+`
+)
+
 type model struct {
-	textInput textinput.Model
-	err       error
+	textInput   textinput.Model
+	text        text.Model
+	screenWidth int
+	err         error
 }
 
 func initialModel() model {
+
 	ti := textinput.New()
 	ti.Placeholder = "GitHub Personal Access Token (PAT)"
 	ti.Focus()
 	ti.CharLimit = 156
 	ti.Width = 80
 
+	txt := text.NewModel(promptMessage)
+
 	return model{
 		textInput: ti,
+		text:      txt,
 		err:       nil,
 	}
 }
@@ -30,7 +46,10 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
+	var (
+		tiCmd tea.Cmd
+		tCmd  tea.Cmd
+	)
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -41,21 +60,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case error:
 		m.err = msg
 		return m, nil
+	case tea.WindowSizeMsg:
+		m.screenWidth = msg.Width
 	}
 
-	m.textInput, cmd = m.textInput.Update(msg)
-	return m, cmd
+	m.textInput, tiCmd = m.textInput.Update(msg)
+	m.text, tCmd = m.text.Update(msg)
+
+	return m, tea.Batch(tiCmd, tCmd)
 }
 
 func (m model) View() string {
-	return fmt.Sprintf(`
-Add a Github Personal Access Token (PAT)
-https://github.com/settings/tokens/new?description=revs-cli-token&scopes=repo,notifications
-
-This is used to access your notifications and information about pull requests you've been asked to review.
-
-%s
-`,
-		m.textInput.View(),
-	) + "\n"
+	return fmt.Sprintf("%s\n\n%s\n", m.text.View(), m.textInput.View())
 }
