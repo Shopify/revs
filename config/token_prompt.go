@@ -11,17 +11,16 @@ import (
 const (
 	promptMessage = `
 Add a Github Personal Access Token (PAT)
-https://github.com/settings/tokens/new?description=revs-cli-token&scopes=repo,notifications
+github.com/settings/tokens/new?scopes=repo,notifications
 
 This is used to access your notifications and information about pull requests you've been asked to review.
 `
 )
 
 type model struct {
-	textInput   textinput.Model
-	text        text.Model
-	screenWidth int
-	err         error
+	textInput textinput.Model
+	text      text.Model
+	err       error
 }
 
 func initialModel() model {
@@ -30,7 +29,6 @@ func initialModel() model {
 	ti.Placeholder = "GitHub Personal Access Token (PAT)"
 	ti.Focus()
 	ti.CharLimit = 156
-	ti.Width = 80
 
 	txt := text.NewModel(promptMessage)
 
@@ -60,8 +58,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case error:
 		m.err = msg
 		return m, nil
-	case tea.WindowSizeMsg:
-		m.screenWidth = msg.Width
 	}
 
 	m.textInput, tiCmd = m.textInput.Update(msg)
