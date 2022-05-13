@@ -38,4 +38,3 @@ Optionally, you can save a GitHub token as a Spin secret that will be  auto-moun
 ```sh
 spin secrets create -u revs-token
 ```
-

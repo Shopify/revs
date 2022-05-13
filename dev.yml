@@ -5,6 +5,6 @@ up:
       version: 1.18.2
 
 commands:
-  run: bin/revs
+  run-built: bin/revs
   build: go build -o bin/revs .
 
