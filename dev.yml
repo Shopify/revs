@@ -7,3 +7,4 @@ up:
 commands:
   run-built: bin/revs
   build: go build -o bin/revs .
+  spin-init: scripts/spin_init
