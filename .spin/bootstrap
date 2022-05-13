@@ -1,0 +1,8 @@
+#!/bin/bash
+
+tokenPath="/etc/spin/secrets/revs-token"
+if [ -f "${tokenPath}" ]; then
+  mkdir -p "/home/spin/.config/revs"
+  cp "${tokenPath}" "/home/spin/.config/revs/token"
+fi
+
