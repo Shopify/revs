@@ -1,4 +1,4 @@
-module github.com/campbel/revs
+module github.com/Shopify/revs
 
 go 1.18
 

@@ -12,7 +12,7 @@ import (
 	"github.com/google/go-github/github"
 	"github.com/pkg/browser"
 
-	"github.com/campbel/revs/ghutil"
+	"github.com/Shopify/revs/ghutil"
 )
 
 type Model struct {

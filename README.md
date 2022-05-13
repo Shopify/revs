@@ -14,13 +14,13 @@ A command line app for accessing and responding to review requests on GitHub.
 ## Install
 
 ```sh
-go install github.com/campbel/revs@main
+go install github.com/Shopify/revs@main
 ```
 
 or
 
 ```sh
-go install github.com/campbel/revs@<tag>
+go install github.com/Shopify/revs@<tag>
 ```
 
 This will install to `$GOBIN`, `$GOPATH/bin` or `~/go/bin`. Make sure whichever is in your path.

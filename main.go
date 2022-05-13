@@ -6,9 +6,9 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/campbel/revs/app"
-	"github.com/campbel/revs/config"
-	"github.com/campbel/revs/ghutil"
+	"github.com/Shopify/revs/app"
+	"github.com/Shopify/revs/config"
+	"github.com/Shopify/revs/ghutil"
 )
 
 func main() {
