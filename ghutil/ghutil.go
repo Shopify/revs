@@ -102,3 +102,12 @@ func GetPullRequestID(notification *github.Notification) int {
 	}
 	return val
 }
+
+func ValidateToken(ctx context.Context, token string) error {
+	client := GetClientFromToken(ctx, token)
+	_, _, err := client.Users.Get(ctx, "")
+	if err != nil {
+		return fmt.Errorf("invalid token: %v", err)
+	}
+	return nil
+}

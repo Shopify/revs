@@ -1,11 +1,12 @@
 package config
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
 
-	tea "github.com/charmbracelet/bubbletea"
+	"github.com/Shopify/revs/ghutil"
 )
 
 const ()
@@ -25,12 +26,16 @@ func GetToken() (string, error) {
 		return string(data), nil
 	}
 
-	p := tea.NewProgram(initialModel())
-	teaModelOut, _ := p.StartReturningModel()
-	modelOut := teaModelOut.(model)
-	token := modelOut.textInput.Value()
+	token, err := promptForToken()
+	if err != nil {
+		return "", err
+	}
 	if token == "" {
 		return "", fmt.Errorf("no token provided")
+	}
+
+	if err := ghutil.ValidateToken(context.TODO(), token); err != nil {
+		return "", err
 	}
 
 	if err := os.MkdirAll(revsPath, 0700); err != nil {
