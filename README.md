@@ -27,7 +27,7 @@ This will install to `$GOBIN`, `$GOPATH/bin` or `~/go/bin`. Make sure whichever 
 
 ## Development
 
-Revs development is setup to be done in Spin.
+For folks @Shopify Revs development is setup to be done in Spin.
 
 ```sh
 spin up revs
