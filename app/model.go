@@ -83,11 +83,17 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, m.keys.open):
 			item := m.list.SelectedItem().(*item)
+			if item == nil {
+				break
+			}
 			url := ghutil.GetPullRequestURL(item.notification)
 			browser.OpenURL(url)
 			return m, nil
 		case key.Matches(msg, m.keys.done):
 			item := m.list.SelectedItem().(*item)
+			if item == nil {
+				break
+			}
 			m.list.ToggleSpinner()
 			_, err := m.client.Activity.MarkThreadRead(context.Background(), *item.notification.ID)
 			m.list.ToggleSpinner()
@@ -100,6 +106,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, statusCmd
 		case key.Matches(msg, m.keys.unsubscribe):
 			item := m.list.SelectedItem().(*item)
+			if item == nil {
+				break
+			}
 			m.list.ToggleSpinner()
 			_, err := m.client.Activity.DeleteThreadSubscription(context.Background(), *item.notification.ID)
 			m.list.ToggleSpinner()
