@@ -1,3 +1,5 @@
 .env
-bin/revs
 .shadowenv.d
+bin
+release
+!scripts/release

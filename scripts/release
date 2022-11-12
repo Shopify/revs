@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -auo pipefail
+
+tag="$1"
+
+# This script is used to release a new version of the project.
+mkdir -p bin
+osarchs=(
+    "darwin/amd64"
+    "linux/amd64"
+)
+
+for osarch in "${osarchs[@]}"; do
+    os=$(echo "$osarch" | awk '{split($0,a,"/"); print a[1]}')
+    arch=$(echo "$osarch" | awk '{split($0,a,"/"); print a[2]}')
+    GOOS="$os" GOARCH="$arch" go build -o "bin/revs-$os-$arch" .
+done
+
+mkdir -p release
+for file in bin/*; do
+    name=$(basename "$file")
+    tar -czf "release/${name}.tar.gz" "$file"
+done
+
+gh release create --draft --generate-notes "$tag" release/*
+
+echo "Draft release created. Please review and publish it."

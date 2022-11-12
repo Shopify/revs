@@ -3,8 +3,11 @@ type: go
 up:
   - go:
       version: 1.18.2
+  - homebrew:
+    - gh
+
 
 commands:
-  run-built: bin/revs
-  build: go build -o bin/revs .
+  revs: go run main.go
+  release: scripts/release $@
 
