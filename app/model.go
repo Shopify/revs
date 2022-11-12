@@ -88,7 +88,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			item := selected.(*item)
 			url := ghutil.GetPullRequestURL(item.notification)
-			browser.OpenURL(url)
+			_ = browser.OpenURL(url)
 			return m, nil
 		case key.Matches(msg, m.keys.done):
 			selected := m.list.SelectedItem()

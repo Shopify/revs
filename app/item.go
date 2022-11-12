@@ -5,10 +5,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/google/go-github/github"
-	"golang.org/x/time/rate"
 )
-
-var limiter = rate.NewLimiter(rate.Limit(1), 1)
 
 type item struct {
 	notification *github.Notification
@@ -24,7 +21,7 @@ func (i *item) Description() string {
 			humanize.Time(*i.pr.CreatedAt),
 		)
 	}
-	return fmt.Sprintf("%s", *i.notification.Repository.FullName)
+	return *i.notification.Repository.FullName
 }
 func (i *item) FilterValue() string {
 	return fmt.Sprint(

@@ -5,9 +5,18 @@ up:
       version: 1.18.2
   - homebrew:
     - gh
+    - golangci-lint:
+        version: 1.45.2
 
 
 commands:
-  revs: go run main.go
-  release: scripts/release $@
-
+  revs:
+    run: go run main.go
+  release:
+    run: scripts/release $@
+  style:
+    run: golangci-lint run "$@"
+  tidy:
+    run: go mod tidy
+  test:
+    run: go test -v ./...
